@@ -1,0 +1,74 @@
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>canvas画多边形</title>
+    </head>
+    <body>
+        <div class="input-content">
+            <input type="text" id="side"/>
+           <!-- <button onclick="draw()">生成</button>-->
+        </div>
+        <canvas id="canvas" width="800" height="300"></canvas>
+    </body>
+    <script>
+        window.onload = function(){
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            drawRegularPolygon(context,100,100,50,3,0,'#ccc','#ccc')
+            drawRegularPolygon(context,210,100,50,4,0,'#ccc','#ccc')
+            drawRegularPolygon(context,320,100,50,5,0,'#ccc','#ccc')
+            drawRegularPolygon(context,430,100,50,6,0,'#ccc','#ccc')
+            drawRegularPolygon(context,540,100,50,7,0,'#ccc','#ccc')
+            drawRegularPolygon(context,650,100,50,8,0,'#ccc','#ccc')
+        };
+
+        /**m
+         * @method 绘制多边形
+         * @param context canvas上下文
+         * @param x 中心点
+         * @param y 中心点
+         * @param r 多边形半径（中心点到顶点的距离）
+         * @param num 多边形边数
+         * @param radius 多边形圆角大小
+         * @param strokeStyle 线条颜色
+         * @param fillStyle 填充颜色
+         */
+        function drawRegularPolygon(context,x,y,r,num,radius,strokeStyle,fillStyle){
+            context.beginPath();
+
+            //循环生成边
+            for(var i=0; i < num; i++){
+                var baseAngle = 2*Math.PI/num ;
+                var initAngle = num%2==0?Math.PI/num:Math.PI/2 ;
+                //var initAngle = 0 ;
+                var pointX = x + r * Math.cos(baseAngle*i-initAngle);
+                var pointY = y + r * Math.sin(baseAngle*i-initAngle);
+
+                if(i ==0 ){
+                    context.moveTo(pointX, pointY);
+                }else{
+                    context.lineTo(pointX, pointY);
+                }
+            }
+
+            context.closePath();
+            //路径闭合
+            if(strokeStyle) {
+                context.strokeStyle = strokeStyle;
+                context.lineWidth = 1;
+                context.lineJoin = 'round';
+                context.stroke();
+            }
+            if(fillStyle) {
+                context.fillStyle = fillStyle;
+                context.fill();
+            }
+           /* context.beginPath();
+            context.moveTo(x, y);
+            context.arc(x, y, 2, 0, 2*Math.PI,true);
+            context.closePath();
+            context.fillStyle = "red";
+            context.fill();*/
+        }
+    </script>
+</html>

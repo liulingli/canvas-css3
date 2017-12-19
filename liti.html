@@ -1,0 +1,74 @@
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>css3立方体</title>
+        <style>
+           .rect-content{
+               position:relative;
+               width:200px;
+               height:200px;
+               margin:200px auto;
+               transform-style: preserve-3d;
+               animation: 20s move ease infinite;
+               transform: rotateX(-45deg) rotateY(720deg) rotateZ(45deg);
+               /*border:1px solid #000;*/
+           }
+           .rect-content .side{
+               position:absolute;
+               width:200px;
+               height:200px;
+               transform-origin: 0 50%;
+               text-align:center;
+               line-height:200px;
+               font-size:18px;
+               color:#3c3c3c;
+           }
+           .rect-content .side1{
+               background-color:rgba(224,128,49,0.5);
+               top: 0;
+               left: 0;
+           }
+           .rect-content .side2{
+               background-color:rgba(199,206,178,0.5);
+               top: 100px;
+               left: 0;
+               transform: rotateX(-90deg) translateY(100PX);
+           }
+           .rect-content .side3{
+               background-color:rgba(25,248,117,0.5);
+               top: -100px;
+               left: 0;
+               transform: rotateX(-90deg) translateY(100PX);
+           }
+           .rect-content .side4{
+               background-color:rgba(11,110,72,0.5);
+               top: 0px;
+               left: 0;
+               transform: translateZ(-200px);
+           }
+           .rect-content .side5{
+               background-color:rgba(199,179,229,0.5);
+               top: 0px;
+               left: 0px;
+               transform: rotateY(-90deg) translateX(-200px);
+           }
+           .rect-content .side6{
+               background-color:rgba(98,198,193,0.5);
+               top: 0px;
+               left: 200px;
+               transform: rotateY(90deg)
+           }
+
+        </style>
+    </head>
+    <body>
+        <div class="rect-content">
+            <div class="side side1">1</div>
+            <div class="side side2">2</div>
+            <div class="side side3">3</div>
+            <div class="side side4">4</div>
+            <div class="side side5">5</div>
+            <div class="side side6">6</div>
+        </div>
+    </body>
+</html>

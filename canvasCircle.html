@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>知乎背景canvas动画</title>
+    <style>
+        html,body,.main{
+            width:100%;
+            height:100%;
+            margin:0;
+            padding:0;
+            overflow: hidden;
+        }
+        .main{
+            background-color:#f3f3f3;
+            overflow-y: auto;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <canvas id="canvas" width="1366" height="500">该浏览器不支持canvas</canvas>
+    </div>
+    <script>
+        window.onload = function(){
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+
+            //获取canvas的宽度和高度
+            var width = canvas.offsetWidth;
+            var height = canvas.offsetHeight;
+            context.clearRect(0, 0, width, height);
+            var circle = new Circle(canvas, context, width, height, '#999', '#999', 60);
+            circle.init();
+        };
+
+        /**
+         * 构造函数圆圈
+         * @param canvas
+         * @param context
+         * @param width
+         * @param height
+         * @param lineColor
+         * @param circleColor
+         * @param num
+         * @constructor
+         */
+        function Circle(canvas,context,width,height,lineColor,circleColor,num){
+            this.canvas = canvas;
+            this.context = context;
+            this.width = width;
+            this.height = height;
+            this.lineColor = lineColor || "#ccc";
+            this.circleColor = circleColor || "#ccc";
+            this.num = num || 20;
+            this.circleArray = [];
+            this.lineArray = []
+            this.g = 1;
+            this.collarg = 0.01;
+            this.mouse = {x:0, y:0};
+        }
+        Circle.prototype = {
+            constructor: Circle,
+            getCircle: function(){
+                for(var i=0; i< this.num; i++) {
+                    var r = parseInt(Math.random() * 10);
+                    var pathX = parseInt(this.width * Math.random() - Math.random() * 10);
+                    var pathY = parseInt(this.height * Math.random() - Math.random() * 12);
+                    var left = false;
+                    var top = false;
+                    if(pathX > this.width/2){
+                        left = true
+                    }
+                    if(pathY > this.height/2){
+                        top = true
+                    }
+                    this.circleArray.push({x:pathX, y:pathY, r:r,vx:1, vy:1,left:left,top:top})
+                }
+            },
+            init:function(){
+                this.getCircle();
+                this.draw();
+                this.move();
+            },
+            move:function(){
+                var that = this;
+                that.canvas.onmousemove = function(e){
+                    that.mouse.x = e.offsetX;
+                    that.mouse.y = e.offsetY;
+                }
+            },
+            drawLine: function(){
+                var linePoint = this.circleArray.concat();
+                linePoint.push(this.mouse);
+                for(var i=0;i<linePoint.length;i++){
+                    var item1 = linePoint[i];
+                    for(var j=0;j<linePoint.length;j++){
+                        var item2 = linePoint[j];
+                        var disX = Math.abs(item1.x - item2.x);
+                        var disY = Math.abs(item1.y - item2.y);
+                        if(item1 !== item2 && disX < 80 && disY< 80){
+                            this.context.beginPath();
+                            this.context.moveTo( item1.x,item1.y );
+                            this.context.lineTo( item2.x,item2.y );
+                            this.context.lineWidth = 1;
+                            this.context.strokeStyle = this.lineColor;
+                            this.context.stroke();
+                            this.context.closePath()
+                        }
+                    }
+                }
+            },
+            draw: function(){
+                this.context.clearRect(0, 0, this.width, this.height);
+                for(var i=0;i<this.circleArray.length;i++){
+                    var point = this.circleArray[i];
+                    this.context.beginPath();
+                    this.context.moveTo(point.x, point.y);
+                    this.context.arc(point.x, point.y, point.r, 0, 2*Math.PI, true);
+                    this.context.closePath();
+                    this.context.fillStyle = this.circleColor;
+                    this.context.fill();
+                }
+                this.drawLine();
+                this.animate();
+               // console.log(this)
+                requestAnimationFrame(this.draw.bind(this))
+            },
+            animate: function(){
+                for(var i=0;i< this.circleArray.length;i++){
+                    var point = this.circleArray[i];
+                    //point.vx = point.vx + this.g * this.collarg
+                    if(point.left){
+                        point.x = point.x - point.vx;
+                    }else{
+                        point.x = point.x + point.vx;
+                    }
+                   // point.x = point.x + point.vx;
+                    if(point.x > this.width - point.r || point.x < point.r){
+                        point.x = point.x < point.r ? point.r : (this.width - point.r);
+                        point.vx = -point.vx
+                    }
+                    //point.vy = point.vy + this.g * this.collarg
+                    //point.y = point.y + point.vy;
+                    if(point.top){
+                        point.y = point.y - point.vy;
+                    }else{
+                        point.y = point.y + point.vy;
+                    }
+                    if(point.y > this.height - point.r || point.y < point.r){
+                        point.y = point.y < point.r ? point.r : (this.height - point.r);
+                        point.vy = -point.vy
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

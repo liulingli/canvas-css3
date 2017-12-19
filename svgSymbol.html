@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .text{
+            fill: none;
+            stroke-width: 1;
+            font-size:80px;
+            stroke-linejoin: round;
+            stroke-dasharray: 80 330;
+            stroke-dashoffset: 0;
+            -webkit-animation: stroke 6s infinite linear;
+            animation: stroke 6s infinite linear;
+        }
+        .text:nth-of-type(1){
+            stroke: #ECE1E3;
+            -webkit-animation-delay: -1.2s;
+            animation-delay: -1.2s;
+        }
+        .text:nth-of-type(2){
+            stroke: #F7DF83;
+            -webkit-animation-delay: -2.4s;
+            animation-delay: -2.4s;
+        }
+        .text:nth-of-type(3){
+            stroke: #F7B983;
+            -webkit-animation-delay: -3.6s;
+            animation-delay: -3.6s;
+        }
+        .text:nth-of-type(4){
+            stroke: #84C2B7;
+            -webkit-animation-delay: -4.8s;
+            animation-delay: -4.8s;
+        }
+        .text:nth-of-type(5){
+            stroke: #A7C18B;
+            -webkit-animation-delay: -6s;
+            animation-delay: -6s;
+        }
+        @-webkit-keyframes stroke {
+            100% {
+                stroke-dashoffset: -400;
+            }
+        }
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: -400;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <svg viewBox="0 0 600 300">
+        <!-- Symbol -->
+        <symbol id="s-text">
+            <text text-anchor="middle" x="50%" y="50%" dy=".35em"> 404 </text>
+        </symbol>
+
+        <!-- Duplicate symbols -->
+        <use xlink:href="#s-text" class="text"></use>
+        <use xlink:href="#s-text" class="text"></use>
+        <use xlink:href="#s-text" class="text"></use>
+        <use xlink:href="#s-text" class="text"></use>
+        <use xlink:href="#s-text" class="text"></use>
+
+    </svg>
+</body>
+</html>
