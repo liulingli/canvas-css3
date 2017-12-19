@@ -9,13 +9,26 @@
         html,body,.main{
             width:100%;
             height:100%;
+            margin:0;
+            padding:0;
             overflow:hidden;
+        }
+        .main{
+            overflow-y:auto;
+            position:relative;
+        }
+        #grid-bg{
+            position:absolute;
+            top:0;
+            right:0;
+            width:800px;
+            height:1200px;
         }
     </style>
 </head>
 <body>
     <div class="main">
-        <canvas class="grid-bg"></canvas>
+        <canvas id="grid-bg"></canvas>
     </div>
 </body>
 </html>
