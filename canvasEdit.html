@@ -11,24 +11,186 @@
             height:100%;
             margin:0;
             padding:0;
-            overflow:hidden;
         }
         .main{
-            overflow-y:auto;
+            margin:50px auto;
             position:relative;
+            width:1000px;
+            height:auto;
         }
         #grid-bg{
-            position:absolute;
+            position:relative;
             top:0;
             right:0;
-            width:800px;
-            height:1200px;
+        }
+        .content{
+            position:absolute;
+            top:50px;
+            left:50px;
+            z-index:100;
+            width:900px;
+            height:1400px;
+        }
+        .shape_box{
+            position:absolute;
+        }
+        .shape_canvas{
+            position:absolute;
+            z-index: 1;
+        }
+        .shape_controller{
+            position:absolute;
+            border:1px solid rgb(136, 51, 51);
+            background:#ffffff;
+            width: 6px;
+            height: 6px;
+            margin-left:-3px;
+            margin-top:-3px;
+            z-index: 2;
+            display: block;
+        }
+        .move{
+            cursor:move;
         }
     </style>
 </head>
 <body>
     <div class="main">
-        <canvas id="grid-bg"></canvas>
+        <canvas id="grid-bg" width="1000" height="1500"></canvas>
+        <div class="content" id="content">
+           <!-- <canvas id="content" width="1000" height="1500"></canvas>-->
+        </div>
     </div>
+    <script>
+        window.onload = function(){
+            var gridCanvas = document.getElementById("grid-bg");
+            var gridContext = gridCanvas.getContext("2d");
+            var width = gridCanvas.offsetWidth;
+            var height = gridCanvas.offsetHeight;
+            //生成
+            gridContext.beginPath();
+            gridContext.lineWidth = 100;
+            gridContext.strokeStyle = "#f2f2f2";
+            gridContext.rect(0,0,width,height);
+            gridContext.closePath();
+            gridContext.stroke();
+
+            var dis = 15;
+
+            //循环生成网格，间隔为20
+            for(var i=1;i<(width-100)/dis;i++){
+                var strokeStyle = "#f0f0f0";
+                if(i%5 ==0){
+                    strokeStyle = "#dcdcdc";
+                }
+                gridContext.beginPath();
+                gridContext.lineWidth = 0.5;
+                gridContext.strokeStyle = strokeStyle;
+                gridContext.moveTo(50+i*dis,50);
+                gridContext.lineTo(50+i*dis,height-50);
+                gridContext.closePath();
+                gridContext.stroke();
+            }
+
+            for(var i=1;i<(height-100)/dis;i++){
+                var strokeStyle = "#f0f0f0";
+                if(i%5 ==0){
+                    strokeStyle = "#dcdcdc";
+                }
+                gridContext.beginPath();
+                gridContext.lineWidth = 0.5;
+                gridContext.strokeStyle = strokeStyle;
+                gridContext.moveTo(50,50+i*dis);
+                gridContext.lineTo(width-50,50+i*dis);
+                gridContext.closePath();
+                gridContext.stroke();
+            }
+            var content = document.getElementById('content');
+            var quadraticBezierCurve = new QuadraticBezierCurve(content,{x:100,y:200},{x:200,y:300},{x:300,y:200});
+            quadraticBezierCurve.init();
+        }
+
+        /**
+         * @method 二次贝塞尔曲线
+         * @param $content 容器
+         * @param beginPoint 开始点
+         * @param controlPoint 控制点
+         * @param endPoint 结束点
+         * @param color
+         */
+        function QuadraticBezierCurve($content,beginPoint,controlPoint,endPoint,color){
+            this.$content = $content;
+            this.beginPoint = beginPoint;
+            this.controlPoint = controlPoint;
+            this.endPoint = endPoint;
+            this.color = color || "#000";
+            this.context = null;
+        }
+        QuadraticBezierCurve.prototype = {
+            constructor: QuadraticBezierCurve,
+            create: function(){
+                var randomId =  Date.parse(new Date());
+                //根据传入的三点获取canvas的大小及宽高
+                //获取最小x,y,和最大xy
+                var arr = [this.beginPoint,this.controlPoint,this.endPoint];
+                var minX = this.beginPoint.x;
+                var maxX = this.beginPoint.x;
+                var minY = this.beginPoint.y;
+                var maxY = this.beginPoint.y;
+
+                for(var i=0;i<arr.length;i++){
+                    if(arr[i].x > maxX){
+                        maxX = arr[i].x
+                    }
+                    if(arr[i].x < minX){
+                        minX = arr[i].x
+                    }
+                    if(arr[i].y > maxY){
+                        maxY = arr[i].y
+                    }
+                    if(arr[i].y < minY){
+                        minY = arr[i].y
+                    }
+
+                    //四角为
+                    var leftTop = {x:minX,y:minY};
+                    var leftBottom = {x:minX,y:maxY};
+                    var rightTop = {x:maxX,y:maxY};
+                    var rightBottom = {x:maxX,y:maxY};
+
+                    var css = {left:leftTop.x, top:leftTop.y, width:maxX-minX, height:maxY-minY}
+                    this.css = css;
+                }
+
+                //创建容器
+                var container = "<div id='"+randomId+"' class='shape_box' style=''>" +
+                    "<canvas class='shape_canvas' width='"+css.width+"' height='"+css.height+"' style='left:"+css.left+"px;top:"+css.top+"px'></canvas>" +
+                    "<div class='shape_controller move begin' style='left:"+this.beginPoint.x+"px;top:"+this.beginPoint.y+"px'></div>" +
+                    "<div class='shape_controller move control' style='left:"+this.controlPoint.x+"px;top:"+this.controlPoint.y+"px'></div>" +
+                    "<div class='shape_controller move end' style='left:"+this.endPoint.x+"px;top:"+this.endPoint.y+"px'></div>" +
+                    "</div>";
+                this.$content.innerHTML = container;
+                var canvas = document.getElementById(randomId).querySelector('.shape_canvas');
+                var context = canvas.getContext("2d");
+                this.context = context;
+            },
+            init: function(){
+                this.create();
+                this.context.beginPath();
+                this.context.stokeStyle = this.color;
+                this.context.moveTo(this.beginPoint.x - this.css.left,this.beginPoint.y -this.css.top);
+                this.context.quadraticCurveTo(this.controlPoint.x - this.css.left,this.controlPoint.y-this.css.top,this.endPoint.x- this.css.left,this.endPoint.y-this.css.top);
+                this.context.stroke();
+                //绘制连线
+                this.context.moveTo(this.beginPoint.x-this.css.left,this.beginPoint.y-this.css.top);
+                this.context.lineTo(this.controlPoint.x-this.css.left,this.controlPoint.y-this.css.top);
+                this.context.lineTo(this.endPoint.x- this.css.left,this.endPoint.y-this.css.top);
+                this.context.stroke();
+            },
+            move: function(){
+
+            }
+        }
+    </script>
 </body>
 </html>
