@@ -125,11 +125,12 @@
             this.endPoint = endPoint;
             this.color = color || "#000";
             this.context = null;
+            this.randomId = null;
         }
         QuadraticBezierCurve.prototype = {
             constructor: QuadraticBezierCurve,
             create: function(){
-                var randomId =  Date.parse(new Date());
+                this.randomId = Date.parse(new Date());;
                 //根据传入的三点获取canvas的大小及宽高
                 //获取最小x,y,和最大xy
                 var arr = [this.beginPoint,this.controlPoint,this.endPoint];
@@ -163,14 +164,14 @@
                 }
 
                 //创建容器
-                var container = "<div id='"+randomId+"' class='shape_box' style=''>" +
+                var container = "<div id='"+this.randomId+"' class='shape_box' style=''>" +
                     "<canvas class='shape_canvas' width='"+css.width+"' height='"+css.height+"' style='left:"+css.left+"px;top:"+css.top+"px'></canvas>" +
                     "<div class='shape_controller move begin' style='left:"+this.beginPoint.x+"px;top:"+this.beginPoint.y+"px'></div>" +
                     "<div class='shape_controller move control' style='left:"+this.controlPoint.x+"px;top:"+this.controlPoint.y+"px'></div>" +
                     "<div class='shape_controller move end' style='left:"+this.endPoint.x+"px;top:"+this.endPoint.y+"px'></div>" +
                     "</div>";
                 this.$content.innerHTML = container;
-                var canvas = document.getElementById(randomId).querySelector('.shape_canvas');
+                var canvas = document.getElementById(this.randomId).querySelector('.shape_canvas');
                 var context = canvas.getContext("2d");
                 this.context = context;
             },
