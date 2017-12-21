@@ -40,7 +40,7 @@
         }
         .shape_controller{
             position:absolute;
-            border:1px solid rgb(136, 51, 51);
+            border:1px solid #883333;
             background:#ffffff;
             width: 6px;
             height: 6px;
@@ -48,6 +48,9 @@
             margin-top:-3px;
             z-index: 2;
             display: block;
+        }
+        .shape_box[data-edit='false'] .shape_controller{
+             display:none;
         }
         .move{
             cursor:move;
@@ -61,6 +64,7 @@
            <!-- <canvas id="content" width="1000" height="1500"></canvas>-->
         </div>
     </div>
+    <script src="canvas.drag.js"></script>
     <script>
         window.onload = function(){
             var gridCanvas = document.getElementById("grid-bg");
@@ -126,71 +130,164 @@
             this.color = color || "#000";
             this.context = null;
             this.randomId = null;
+            this.$canvasDiv = null;
         }
         QuadraticBezierCurve.prototype = {
             constructor: QuadraticBezierCurve,
-            create: function(){
-                this.randomId = Date.parse(new Date());;
+            parseMinAndMax: function(arr){
                 //根据传入的三点获取canvas的大小及宽高
                 //获取最小x,y,和最大xy
-                var arr = [this.beginPoint,this.controlPoint,this.endPoint];
-                var minX = this.beginPoint.x;
-                var maxX = this.beginPoint.x;
-                var minY = this.beginPoint.y;
-                var maxY = this.beginPoint.y;
+                var minX = arr[0].x;
+                var maxX = arr[0].x;
+                var minY = arr[0].y;
+                var maxY = arr[0].y;
 
-                for(var i=0;i<arr.length;i++){
-                    if(arr[i].x > maxX){
+                for(var i=0;i<arr.length;i++) {
+                    if (arr[i].x > maxX) {
                         maxX = arr[i].x
                     }
-                    if(arr[i].x < minX){
+                    if (arr[i].x < minX) {
                         minX = arr[i].x
                     }
-                    if(arr[i].y > maxY){
+                    if (arr[i].y > maxY) {
                         maxY = arr[i].y
                     }
-                    if(arr[i].y < minY){
+                    if (arr[i].y < minY) {
                         minY = arr[i].y
                     }
-
-                    //四角为
-                    var leftTop = {x:minX,y:minY};
-                    var leftBottom = {x:minX,y:maxY};
-                    var rightTop = {x:maxX,y:maxY};
-                    var rightBottom = {x:maxX,y:maxY};
-
-                    var css = {left:leftTop.x, top:leftTop.y, width:maxX-minX, height:maxY-minY}
-                    this.css = css;
                 }
 
+                //四角为
+                var leftTop = {x:minX,y:minY};
+                var leftBottom = {x:minX,y:maxY};
+                var rightTop = {x:maxX,y:maxY};
+                var rightBottom = {x:maxX,y:maxY};
+
+                this.css = {left:leftTop.x, top:leftTop.y, width:maxX-minX, height:maxY-minY};
+                this.point = [{
+                    x: arr[0].x - this.css.left,
+                    y: arr[0].y -this.css.top
+                },{
+                    x:arr[1].x - this.css.left,
+                    y:arr[1].y -this.css.top
+                },{
+                    x:arr[2].x - this.css.left,
+                    y:arr[2].y -this.css.top
+                }]
+            },
+            createHtml: function(){
+                this.randomId = Date.parse(new Date());
                 //创建容器
-                var container = "<div id='"+this.randomId+"' class='shape_box' style=''>" +
-                    "<canvas class='shape_canvas' width='"+css.width+"' height='"+css.height+"' style='left:"+css.left+"px;top:"+css.top+"px'></canvas>" +
-                    "<div class='shape_controller move begin' style='left:"+this.beginPoint.x+"px;top:"+this.beginPoint.y+"px'></div>" +
-                    "<div class='shape_controller move control' style='left:"+this.controlPoint.x+"px;top:"+this.controlPoint.y+"px'></div>" +
-                    "<div class='shape_controller move end' style='left:"+this.endPoint.x+"px;top:"+this.endPoint.y+"px'></div>" +
+                var container = "<div id='"+this.randomId+"' class='shape_box' data-edit='false' style='left:"+this.css.left+"px;top:"+this.css.top+"px'>" +
+                    "<canvas class='shape_canvas' width='"+this.css.width+"' height='"+this.css.height+"'></canvas>" +
+                    "<div class='shape_controller move begin' style='left:"+this.point[0].x+"px;top:"+this.point[0].y+"px'></div>" +
+                    "<div class='shape_controller move middle' style='left:"+this.point[1].x+"px;top:"+this.point[1].y+"px'></div>" +
+                    "<div class='shape_controller move end' style='left:"+this.point[2].x+"px;top:"+this.point[2].y+"px'></div>" +
                     "</div>";
                 this.$content.innerHTML = container;
-                var canvas = document.getElementById(this.randomId).querySelector('.shape_canvas');
-                var context = canvas.getContext("2d");
-                this.context = context;
+                this.$canvasDiv = document.getElementById(this.randomId);
+                this.canvas = this.$canvasDiv.querySelector('.shape_canvas');
+                this.context = this.canvas.getContext("2d");
+                var that = this;
+                this.$canvasDiv.onclick = function(e){
+                    that.$canvasDiv.setAttribute("data-edit",'true');
+                    that.drawCanvas(true);
+                }
             },
-            init: function(){
-                this.create();
+            drawCanvas:function(line){
+                this.context.clearRect(0,0,this.css.width,this.css.height);
                 this.context.beginPath();
-                this.context.stokeStyle = this.color;
-                this.context.moveTo(this.beginPoint.x - this.css.left,this.beginPoint.y -this.css.top);
-                this.context.quadraticCurveTo(this.controlPoint.x - this.css.left,this.controlPoint.y-this.css.top,this.endPoint.x- this.css.left,this.endPoint.y-this.css.top);
+                this.context.moveTo(this.point[0].x,this.point[0].y);
+                this.context.quadraticCurveTo(this.point[1].x, this.point[1].y, this.point[2].x,this.point[2].y);
+                this.context.lineWidth = 1;
+                this.context.strokeStyle = this.color;
                 this.context.stroke();
                 //绘制连线
-                this.context.moveTo(this.beginPoint.x-this.css.left,this.beginPoint.y-this.css.top);
-                this.context.lineTo(this.controlPoint.x-this.css.left,this.controlPoint.y-this.css.top);
-                this.context.lineTo(this.endPoint.x- this.css.left,this.endPoint.y-this.css.top);
+                line && this.drawLine("#883333")
+            },
+            drawLine:function(color){
+                this.context.beginPath();
+                this.context.moveTo(this.point[0].x,this.point[0].y);
+                this.context.lineTo(this.point[1].x, this.point[1].y);
+                this.context.lineTo(this.point[2].x,this.point[2].y);
+                this.context.lineWidth = 0.5;
+                this.context.strokeStyle = color;
                 this.context.stroke();
+            },
+            init: function(){
+                this.parseMinAndMax([this.beginPoint,this.controlPoint,this.endPoint]);
+                this.createHtml();
+                this.drawCanvas(false);
+                this.move();
+            },
+            changePosition:function(){
+                var $content = document.getElementById(this.randomId);
+                var $canvas = $content.getElementsByTagName("canvas")[0];
+                var $begin = $content.getElementsByClassName("begin")[0];
+                var $middle = $content.getElementsByClassName("middle")[0];
+                var $end = $content.getElementsByClassName("end")[0];
+                $content.style.width = this.css.width + "px";
+                $content.style.height = this.css.height + "px";
+                $content.style.left = this.css.left + "px";
+                $content.style.top = this.css.top + "px";
+                $begin.style.left = this.point[0].x+ "px";
+                $begin.style.top = this.point[0].y+ "px";
+                $middle.style.left = this.point[1].x+ "px";
+                $middle.style.top = this.point[1].y+ "px";
+                $end.style.left = this.point[2].x+ "px";
+                $end.style.top = this.point[2].y+ "px";
+                $canvas.width = this.css.width;
+                $canvas.height = this.css.height;
+            },
+            change:function(newPoint){
+                this.parseMinAndMax(newPoint);
+                this.changePosition();
+                this.drawCanvas(true);
             },
             move: function(){
                 var that = this;
-                var controller = document.getElementById(this.randomId).querySelector('.shape_controller');
+                var controllers = document.getElementById(this.randomId).getElementsByClassName('shape_controller');
+                for(var i=0;i<controllers.length;i++){
+                    var controller = controllers[i];
+                    controller.onmousedown = function(e){
+                        var oldX = e.clientX;
+                        var oldY = e.clientY;
+                        var disX = 0;
+                        var disY = 0;
+                        var className = e.target.className;
+                        var isBegin = className.indexOf("begin")>-1;
+                        var isMiddle = className.indexOf("middle")>-1;
+                        var isEnd = className.indexOf("end")>-1;
+                        var index = isBegin?0:isMiddle?1:isEnd?2:null;
+                        document.onmousemove = function(e){
+                            disX = e.clientX - oldX;
+                            disY = e.clientY - oldY;
+                            oldX = e.clientX;
+                            oldY = e.clientY;
+                            var oldPoint = that.point;
+                            var newPoint = oldPoint.concat();
+                            newPoint[index] = {
+                                x : newPoint[index].x + disX,
+                                y : newPoint[index].y + disY
+                            };
+                            for(var i=0;i<newPoint.length;i++){
+                                newPoint[i].x = newPoint[i].x + that.css.left;
+                                newPoint[i].y = newPoint[i].y + that.css.top
+                            }
+                            that.change(newPoint);
+                        };
+                        document.onmouseup = function(e){
+                            setTimeout(function(){
+                                that.$canvasDiv.setAttribute("data-edit",'false');
+                                that.drawCanvas(false)
+                            },200);
+                            controller.onmousdown = null;
+                            document.onmousemove = null;
+                            document.onmouseup= null;
+                        }
+                    }
+                }
+
             }
         }
     </script>
