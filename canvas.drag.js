@@ -198,6 +198,7 @@
             this.canvas.height = this.css.height;
         },
         drawCanvas: function(){
+            console.log( this.canvas, this.context)
             this.context.clearRect(0,0,this.css.width,this.css.height);
             this.context.beginPath();
             this.context.rect(0,0,this.css.width,this.css.height);
@@ -237,7 +238,65 @@
      * @constructor
      */
     function Circle($content,x,y,r,border,strokeColor,fillColor){
-
+        DragClass.call(this);
+        this.$content = $content;
+        this.x = x;
+        this.y = y;
+        this.r = r || 200;
+        this.border = border || 1;
+        this.fillColor = fillColor || "#000";
+        this.strokeColor = strokeColor || "#000";
     }
+    Circle.prototype = {
+        constructor: Circle,
+        createHtml: function(){
+            this.randomId = Date.parse(new Date())+Math.random();
+            this.css = {left:this.x, top:this.y, r:this.r, width:this.r*2, height:this.r*2};
+            //创建容器
+            var container = "<div id='"+this.randomId+"' class='shape_box' data-edit='false' style='width:"+this.css.width+"px;height:"+this.css.height+"px;left:"+this.css.left+"px;top:"+this.css.top+"px'>" +
+                "<canvas class='shape_canvas' width='"+this.css.width+"' height='"+this.css.height+"'></canvas>" +
+                "<textarea class='shape_textarea'></textarea>" +
+                "</div>";
+            var oldHtml = this.$content.innerHTML;
+            this.$content.innerHTML = oldHtml + container;
+            this.$canvasDiv = document.getElementById(this.randomId);
+            this.canvas = this.$canvasDiv.querySelector('.shape_canvas');
+            this.context = this.canvas.getContext("2d");
+        },
+        changeHtml: function(){
+            this.$canvasDiv.style.left =  this.css.left + "px";
+            this.$canvasDiv.style.top =  this.css.top + "px";
+            this.$canvasDiv.style.width =  this.css.width + "px";
+            this.$canvasDiv.style.height = this.css.height + "px";
+            this.canvas.width = this.css.width;
+            this.canvas.height = this.css.height;
+        },
+        drawCanvas: function(){
+            console.log( this.canvas, this.context)
+            this.context.clearRect(0,0,this.css.width,this.css.height);
+            this.context.beginPath();
+            this.context.arc(this.r,this.r,this.r,0,Math.PI*2,true);
+            this.context.lineWidth = 3;
+            this.context.strokeStyle = this.strokeColor;
+            this.context.stroke();
+            /* this.context.fillStyle = this.fillColor;
+             this.context.fill();*/
+        },
+        changeMove: function(){
+            this.css = this.newCss;
+            this.changeHtml();
+            this.drawCanvas();
+        },
+        init: function(){
+            this.createHtml();
+            this.drawCanvas();
+            this.addEvent(this.$canvasDiv);
+            this.move(this.$canvasDiv);
+        }
+    }
+
+    var circle = new Circle(content,400,200,50);
+    console.log(circle)
+    circle.init();
 })();
 
