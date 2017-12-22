@@ -65,7 +65,7 @@
     </div>
 </div>
 <script>
-    window.onload = function(){
+    window.onload = function() {
         var gridCanvas = document.getElementById("grid-bg");
         var gridContext = gridCanvas.getContext("2d");
         var width = gridCanvas.offsetWidth;
@@ -74,70 +74,93 @@
         gridContext.beginPath();
         gridContext.lineWidth = 100;
         gridContext.strokeStyle = "#f2f2f2";
-        gridContext.rect(0,0,width,height);
+        gridContext.rect(0, 0, width, height);
         gridContext.closePath();
         gridContext.stroke();
 
         var dis = 15;
 
         //循环生成网格，间隔为20
-        for(var i=1;i<(width-100)/dis;i++){
+        for (var i = 1; i < (width - 100) / dis; i++) {
             var strokeStyle = "#f0f0f0";
-            if(i%5 ==0){
+            if (i % 5 == 0) {
                 strokeStyle = "#dcdcdc";
             }
             gridContext.beginPath();
             gridContext.lineWidth = 0.5;
             gridContext.strokeStyle = strokeStyle;
-            gridContext.moveTo(50+i*dis,50);
-            gridContext.lineTo(50+i*dis,height-50);
+            gridContext.moveTo(50 + i * dis, 50);
+            gridContext.lineTo(50 + i * dis, height - 50);
             gridContext.closePath();
             gridContext.stroke();
         }
 
-        for(var i=1;i<(height-100)/dis;i++){
+        for (var i = 1; i < (height - 100) / dis; i++) {
             var strokeStyle = "#f0f0f0";
-            if(i%5 ==0){
+            if (i % 5 == 0) {
                 strokeStyle = "#dcdcdc";
             }
             gridContext.beginPath();
             gridContext.lineWidth = 0.5;
             gridContext.strokeStyle = strokeStyle;
-            gridContext.moveTo(50,50+i*dis);
-            gridContext.lineTo(width-50,50+i*dis);
+            gridContext.moveTo(50, 50 + i * dis);
+            gridContext.lineTo(width - 50, 50 + i * dis);
             gridContext.closePath();
             gridContext.stroke();
         }
         var content = document.getElementById('content');
         var rectangle = new Rectangle(content,100,200,300,200);
         console.log(rectangle)
-        rectangle.getAll();
-        /**
-         * @constructor  创建矩形 构造函数
-         * @param $content 容器
-         * @param x 矩形所处画布的原点x
-         * @param y 矩形所处画布的原点y
-         * @param width 矩形宽度
-         * @param height 矩形高度
-         * @param border 矩形线宽
-         * @param fillColor 填充颜色
-         * @param strokeColor 线条颜色
-         */
-        function Rectangle($content,x,y,width,height,border,fillColor,strokeColor){
-            this.$content = $content;
-            this.x = x;
-            this.y = y;
-            this.width = width || 200;
-            this.height = height|| 300;
-            this.border = border || 1;
-            this.fillColor = fillColor || "#000";
-            this.strokeColor = strokeColor || "#000";
-        }
-        Rectangle.prototype = {
-            constructor:Rectangle,
-            getAll:function(){
-                console.log("getdddd")
-            }
+        rectangle.init();
+    }
+
+    /**
+     * @constructor  创建矩形 构造函数
+     * @param $content 容器
+     * @param x 矩形所处画布的原点x
+     * @param y 矩形所处画布的原点y
+     * @param width 矩形宽度
+     * @param height 矩形高度
+     * @param border 矩形线宽
+     * @param fillColor 填充颜色
+     * @param strokeColor 线条颜色
+     */
+    function Rectangle($content,x,y,width,height,border,fillColor,strokeColor){
+        this.$content = $content;
+        this.x = x;
+        this.y = y;
+        this.width = width || 200;
+        this.height = height|| 300;
+        this.border = border || 1;
+        this.fillColor = fillColor || "#000";
+
+    }
+    Rectangle.prototype = {
+        constructor: Rectangle,
+        createHtml: function(){
+            this.randomId = Date.parse(new Date());
+            this.css = {left:this.x, top:this.y, width:this.width, height:this.height};
+            //创建容器
+            var container = "<div id='"+this.randomId+"' class='shape_box' data-edit='false' style='left:"+this.css.left+"px;top:"+this.css.top+"px'>" +
+                "<canvas class='shape_canvas' width='"+this.css.width+"' height='"+this.css.height+"'></canvas>" +
+                "<textarea class='shape_textarea'></textarea>" +
+                "</div>";
+            this.$content.innerHTML = container;
+            this.$canvasDiv = document.getElementById(this.randomId);
+            this.canvas = this.$canvasDiv.querySelector('.shape_canvas');
+            this.context = this.canvas.getContext("2d");
+        },
+        drawCanvas: function(){
+            this.context.clearRect(0,0,this.css.width,this.css.height);
+            this.context.beginPath();
+            this.context.rect(0,0,this.css.width,this.css.height)
+            this.context.lineWidth = 1;
+            this.context.strokeStyle = this.color;
+            this.context.stroke();
+        },
+        init: function(){
+            this.createHtml();
+            this.drawCanvas();
         }
     }
 
