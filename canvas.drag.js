@@ -40,6 +40,37 @@
             var control = document.getElementById("shape_controls");
             control.style.display = "none";
         };
+        this.move = function(){
+            var control = document.getElementById("shape_controls");
+            var controls_bounding = document.getElementById("controls_bounding");
+            var that = this;
+            controls_bounding.onmousedown = function(e) {
+                var type = e.target.getAttribute("resizedir");
+                var oldX = e.clientX;
+                var oldY = e.clientY;
+                var disX = 0;
+                var disY = 0;
+                document.onmousemove = function (e) {
+                    disX = e.clientX - oldX;
+                    disY = e.clientY - oldY;
+                    oldX = e.clientX;
+                    oldY = e.clientY;
+                    that.newCss = {
+                        left: that.css.left+ disX,
+                        top: that.css.top + disY,
+                        width: that.css.width ,
+                        height: that.css.height
+                    };
+                    control.style.left =  that.newCss.left + "px";
+                    control.style.top =  that.newCss.top + "px";
+                    that.changeMove();
+                };
+                document.onmouseup = function(e){
+                    document.onmousemove = null;
+                    document.onmouseup = null;
+                }
+            }
+        },
         this.addEvent = function($content){
             var control = document.getElementById("shape_controls");
             var that = this;
@@ -185,6 +216,7 @@
             this.createHtml();
             this.drawCanvas();
             this.addEvent(this.$canvasDiv);
+            this.move(this.$canvasDiv);
         }
     }
 
@@ -192,5 +224,20 @@
     var rectangle = new Rectangle(content,100,200,300,200);
     console.log(rectangle)
     rectangle.init();
+
+    /**
+     * @method 创建圆构造函数
+     * @param $content
+     * @param x
+     * @param y
+     * @param r
+     * @param border
+     * @param strokeColor
+     * @param fillColor
+     * @constructor
+     */
+    function Circle($content,x,y,r,border,strokeColor,fillColor){
+
+    }
 })();
 
