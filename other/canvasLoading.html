@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>canvas-loding</title>
+    <style>
+        html,body,.main{
+            width:100%;
+            height:100%;
+            padding:0;
+            margin:0;
+        }
+        body{
+            background-color:#f3f3f3;
+        }
+
+        #canvas{
+            margin: 50px 0 0 100px;
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <canvas id="canvas" width="80" height="80">该浏览器不支持canvas</canvas>
+</div>
+<script>
+    window.onload = function(){
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+
+        //获取canvas的宽度和高度
+        var width = canvas.offsetWidth;
+        var height = canvas.offsetHeight;
+
+        function drawCircle(context,lineWidth,pointX,pointY,r,beginRange,endRange,color){
+            context.clearRect(0, 0, 80, 80);
+            context.beginPath();
+
+            //绘制一个背景圆圈
+            context.arc(pointX, pointY, 40, 0, Math.PI*2);
+            context.fillStyle = "#ffffff";
+            context.fill();
+            context.closePath();
+
+            if (beginRange < Math.PI*2) {
+                beginRange += 0.08;
+            } else {
+                beginRange= 0;
+            }
+            if(endRange < Math.PI*2){
+                endRange += 0.04;
+            } else {
+                endRange= 0;
+            }
+            context.beginPath();
+            context.arc(pointX, pointY, r, beginRange, endRange,false);
+            //console.log(pointX, pointY, r, beginRange, endRange)
+            //context.closePath();
+            context.strokeStyle = color;
+            context.lineWidth = lineWidth;
+            context.stroke();
+
+            requestAnimationFrame(function(){
+                drawCircle(context,lineWidth,pointX,pointY,r,beginRange,endRange,color);
+            })
+        }
+
+
+        requestAnimationFrame(function(){
+            drawCircle(context,6,40,40,20,0, Math.PI*2,"#007fff");
+        })
+    }
+</script>
+</body>
+</html>
